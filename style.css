@@ -342,45 +342,54 @@ body {
 /* ---------- Ayudas ---------- */
 .rotate-hint {
   display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  opacity: 0.8;
   text-align: center;
   padding: 0 16px;
 }
 
+.rotate-hint p {
+  opacity: 0.75;
+}
+
 @media (orientation: portrait) and (max-width: 700px) {
-  .rotate-hint {
-    display: block;
+  html:not(.rotated) .rotate-hint {
+    display: flex;
   }
   /* el escenario queda chico: UI compacta (tocar la pantalla también avanza) */
-  .hint {
+  html:not(.rotated) .hint {
     display: none;
   }
-  .bottom {
+  html:not(.rotated) .bottom {
     bottom: 6px;
   }
-  .btn {
+  html:not(.rotated) .btn {
     font-size: 13px;
     min-height: 34px;
     padding: 7px 18px;
   }
-  .btn-ghost {
+  html:not(.rotated) .btn-ghost {
     font-size: 11px;
     min-height: 30px;
     padding: 5px 12px;
   }
-  .music-btn {
+  html:not(.rotated) .music-btn {
     top: 6px;
     left: 6px;
     width: 30px;
     height: 30px;
   }
-  .icon-btn {
+  html:not(.rotated) .icon-btn {
     width: 30px;
     height: 30px;
     font-size: 14px;
     top: 6px;
     right: 6px;
+  }
+  html:not(.rotated) .fs-btn {
+    right: 42px;
   }
 }
 
@@ -465,4 +474,52 @@ body {
     margin-top: 4px;
     font-size: 11px;
   }
+}
+
+/* ---------- Pantalla completa ---------- */
+.fs-btn {
+  right: calc(14 * var(--u) + max(36px, calc(44 * var(--u))) + 10px);
+  font-size: max(16px, calc(22 * var(--u)));
+}
+
+/* sin API de pantalla completa (iPhone): el botón solo sirve en vertical */
+html.no-fs .fs-btn {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  html.no-fs .fs-btn {
+    display: block;
+  }
+}
+
+/* Modo girado: el celu está en vertical pero se muestra todo apaisado.
+   script.js fija el tamaño; acá se rota 90° para llenar la pantalla. */
+html.rotated,
+html.rotated body {
+  background: #120c24;
+}
+
+html.rotated .app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--rot-w);
+  height: var(--rot-h);
+  transform-origin: 0 0;
+  transform: translateX(var(--rot-h)) rotate(90deg);
+  padding: 0;
+}
+
+html.rotated .rotate-hint {
+  display: none;
+}
+
+html.rotated .stage {
+  border-radius: 0;
+}
+
+html.full-mode .app {
+  padding: 0;
+  gap: 0;
 }

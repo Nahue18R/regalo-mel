@@ -99,7 +99,7 @@ python3 -m http.server 8000   # o simplemente abrir index.html
 3. Cada `git push` a la rama principal se publica solo.
 4. Generar el QR con la URL final (por ejemplo `https://regalo-mel.netlify.app`) y mandarlo por WhatsApp o Instagram.
 
-**Tip:** en el celu se ve mejor horizontal 📱↻.
+**Tip:** en el celu, el botón **⛶** (o *"Ver en pantalla completa"*) pone el juego en pantalla completa y horizontal. En Android usa la pantalla completa del navegador y bloquea la orientación; en iPhone (que no lo permite) gira el juego por CSS para que ocupe toda la pantalla.
 
 ## ✅ Compatibilidad
 

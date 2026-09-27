@@ -1490,6 +1490,8 @@
     reread: document.getElementById('rereadBtn'),
     restart: document.getElementById('restartBtn'),
     mute: document.getElementById('muteBtn'),
+    fs: document.getElementById('fsBtn'),
+    fsHint: document.getElementById('fsHintBtn'),
     music: document.getElementById('musicBtn'),
     musicPanel: document.getElementById('musicPanel'),
     musicFrame: document.getElementById('musicFrame'),
@@ -1499,10 +1501,66 @@
 
   let viewScale = 1; // pixeles físicos por unidad lógica
 
+  /* ---------- Pantalla completa + horizontal ----------
+   * Android/desktop: API de Fullscreen y bloqueo de orientación.
+   * iPhone (no tiene esa API para páginas): se rota el juego por CSS.   */
+  let fullMode = false;
+  const root = document.documentElement;
+  const fsSupported = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+  if (!fsSupported) root.classList.add('no-fs');
+
+  async function enterFull() {
+    fullMode = true;
+    try {
+      if (root.requestFullscreen) await root.requestFullscreen({ navigationUI: 'hide' });
+      else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    } catch { /* sin permiso: queda el modo girado */ }
+    try {
+      if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+    } catch { /* no se pudo bloquear: si sigue vertical, se gira por CSS */ }
+    updateFullUI();
+    resize();
+  }
+
+  function exitFull() {
+    fullMode = false;
+    try {
+      if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    } catch { /* nada */ }
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    updateFullUI();
+    resize();
+  }
+
+  function updateFullUI() {
+    root.classList.toggle('full-mode', fullMode);
+    ui.fs.textContent = fullMode ? '✕' : '⛶';
+    ui.fs.setAttribute('aria-pressed', String(fullMode));
+    ui.fs.setAttribute('aria-label', fullMode ? 'Salir de pantalla completa' : 'Pantalla completa');
+  }
+
+  function onFullscreenChange() {
+    // si el usuario sale con el botón "atrás", salimos también del modo
+    if (!fsElement() && fullMode && fsSupported) exitFull();
+    else resize();
+  }
+
   function resize() {
-    const vw = window.innerWidth, vh = window.innerHeight;
+    let vw = window.innerWidth, vh = window.innerHeight;
+    // modo girado: en vertical se rota todo 90° (ver Fullscreen más abajo)
+    const rotated = fullMode && vh > vw;
+    document.documentElement.classList.toggle('rotated', rotated);
+    if (rotated) {
+      document.documentElement.style.setProperty('--rot-w', vh + 'px');
+      document.documentElement.style.setProperty('--rot-h', vw + 'px');
+      [vw, vh] = [vh, vw];
+    }
     const portrait = vh > vw;
-    const maxW = Math.min(vw - (portrait ? 0 : 16), (vh - (portrait ? 60 : 16)) * (16 / 9));
+    // en pantalla completa sin márgenes; en vertical dejamos lugar para el botón de abajo
+    const padX = fullMode || portrait ? 0 : 16;
+    const padY = fullMode ? 0 : portrait ? 60 : 16;
+    const maxW = Math.min(vw - padX, (vh - padY) * (16 / 9));
     const cssW = Math.max(240, Math.floor(maxW));
     const cssH = Math.round(cssW * 9 / 16);
     document.documentElement.style.setProperty('--stage-w', cssW + 'px');
@@ -2473,6 +2531,14 @@
       else closeMusic();
     });
     ui.musicClose.addEventListener('click', closeMusic);
+    ui.fs.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (fullMode) exitFull();
+      else enterFull();
+    });
+    ui.fsHint.addEventListener('click', enterFull);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
     ui.mute.addEventListener('click', () => {
       Sound.init();
       Sound.setMuted(!Sound.muted);

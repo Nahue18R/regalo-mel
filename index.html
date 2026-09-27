@@ -20,6 +20,7 @@
         <button id="musicBtn" class="music-btn" type="button" aria-label="Reproducir música" aria-expanded="false" aria-controls="musicPanel">
           <span class="music-icon" aria-hidden="true">▶</span>
         </button>
+        <button id="fsBtn" class="icon-btn fs-btn" type="button" aria-label="Pantalla completa" aria-pressed="false">⛶</button>
         <button id="muteBtn" class="icon-btn" type="button" aria-label="Silenciar sonido" aria-pressed="false">🔊</button>
 
         <div id="bigHeart" class="big-heart" aria-hidden="true">💛</div>
@@ -45,7 +46,10 @@
       <a class="music-link" href="https://www.youtube.com/watch?v=mlrozstOdSI" target="_blank" rel="noopener">¿No suena? Abrir en YouTube ↗</a>
     </aside>
 
-    <p class="rotate-hint">Girá el celu 📱 para verlo en grande</p>
+    <div class="rotate-hint">
+      <button id="fsHintBtn" class="btn btn-primary" type="button">⛶ Ver en pantalla completa</button>
+      <p>o girá el celu 📱</p>
+    </div>
 
     <!-- Texto accesible para lectores de pantalla (el contenido visual vive en el canvas) -->
     <div id="srLive" class="sr-only" aria-live="polite"></div>
