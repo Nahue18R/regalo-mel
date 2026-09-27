@@ -1,84 +1,328 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =========================================================
+   Regalo para Mel — estilos
+   El juego se dibuja en <canvas>; acá va el layout 16:9
+   responsivo y la UI (botones, textos, corazón).
+   ========================================================= */
+
+:root {
+  --color-primary: #667eea;
+  --color-secondary: #764ba2;
+  --grad-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --bg-page: #1c1533;
+  --bg-page-2: #2a1f4a;
+  --text-light: #ffffff;
+  --shadow-btn: 0 6px 18px rgba(102, 126, 234, 0.45);
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* --u: 1px del canvas lógico (1024x576) en píxeles CSS. Lo actualiza script.js */
+  --u: 1px;
+  --stage-w: 100vw;
+  --stage-h: 56.25vw;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  scroll-behavior: auto;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
+  font-family: var(--font-ui);
+  color: var(--text-light);
+  background:
+    radial-gradient(ellipse at 50% 40%, var(--bg-page-2) 0%, var(--bg-page) 70%) fixed;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
 }
 
-.container {
-    position: relative;
-    max-width: 1024px;
-    width: 100%;
-    background: #000;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+.app {
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-#gameCanvas {
+/* ---------- Escenario ---------- */
+.stage {
+  position: relative;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  overflow: hidden;
+  border-radius: calc(10 * var(--u));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  background: #87ceeb;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: pointer;
+}
+
+/* ---------- Capa de UI ---------- */
+.ui {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ui button {
+  pointer-events: auto;
+}
+
+.bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(22 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(10 * var(--u));
+}
+
+.hint {
+  font-size: max(13px, calc(20 * var(--u)));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55), 0 0 12px rgba(0, 0, 0, 0.35);
+  animation: blink 1.6s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+
+.hint.is-hidden {
+  opacity: 0;
+  animation: none;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: max(14px, calc(20 * var(--u)));
+  color: var(--text-light);
+  border: 0;
+  border-radius: 999px;
+  padding: max(10px, calc(13 * var(--u))) max(22px, calc(34 * var(--u)));
+  min-height: 44px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.35s ease, filter 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--grad-primary);
+  box-shadow: var(--shadow-btn), inset 0 -3px 0 rgba(0, 0, 0, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-ghost {
+  font-size: max(12px, calc(15 * var(--u)));
+  padding: max(8px, calc(9 * var(--u))) max(16px, calc(22 * var(--u)));
+  min-height: 40px;
+  background: rgba(20, 12, 40, 0.55);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    filter: brightness(1.08);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 10px 26px rgba(118, 75, 162, 0.6), inset 0 -3px 0 rgba(0, 0, 0, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+  }
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.97);
+  filter: brightness(0.95);
+}
+
+.btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: 3px solid #ffd700;
+  outline-offset: 3px;
+}
+
+.btn.is-hidden {
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+.btn.bounce {
+  animation: bounce 1.3s ease-in-out infinite;
+}
+
+.final-btns {
+  display: flex;
+  gap: calc(12 * var(--u));
+  animation: fade-up 0.6s ease both;
+}
+
+.final-btns[hidden] {
+  display: none;
+}
+
+.icon-btn {
+  position: absolute;
+  top: calc(14 * var(--u));
+  right: calc(14 * var(--u));
+  width: max(36px, calc(44 * var(--u)));
+  height: max(36px, calc(44 * var(--u)));
+  font-size: max(16px, calc(20 * var(--u)));
+  line-height: 1;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(20, 12, 40, 0.35);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.08);
+  background: rgba(20, 12, 40, 0.55);
+}
+
+/* ---------- Corazón grande (pantalla del ramo) ---------- */
+.big-heart {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  font-size: calc(110 * var(--u));
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  filter: drop-shadow(0 0 calc(18 * var(--u)) rgba(255, 215, 0, 0.75));
+}
+
+.big-heart.show {
+  animation: heart-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, heart-float 2.4s ease-in-out 0.7s infinite;
+}
+
+.big-heart.hide {
+  animation: heart-out 0.35s ease forwards;
+}
+
+/* ---------- Ayudas ---------- */
+.rotate-hint {
+  display: none;
+  font-size: 14px;
+  opacity: 0.8;
+  text-align: center;
+  padding: 0 16px;
+}
+
+@media (orientation: portrait) and (max-width: 700px) {
+  .rotate-hint {
     display: block;
-    width: 100%;
-    height: auto;
-    background: #87CEEB;
+  }
+  /* el escenario queda chico: UI compacta (tocar la pantalla también avanza) */
+  .hint {
+    display: none;
+  }
+  .bottom {
+    bottom: 6px;
+  }
+  .btn {
+    font-size: 13px;
+    min-height: 34px;
+    padding: 7px 18px;
+  }
+  .btn-ghost {
+    font-size: 11px;
+    min-height: 30px;
+    padding: 5px 12px;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+    top: 6px;
+    right: 6px;
+  }
 }
 
-.ui-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.5);
-    text-align: center;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-.message {
-    color: #fff;
-    font-size: 18px;
-    margin-bottom: 15px;
-    min-height: 25px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    font-weight: bold;
+/* ---------- Keyframes ---------- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
-.action-btn {
-    padding: 12px 30px;
-    font-size: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(calc(-8 * var(--u))); }
+  50% { transform: translateY(0); }
+  65% { transform: translateY(calc(-3 * var(--u))); }
 }
 
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
 }
 
-.action-btn:active {
-    transform: translateY(0);
+@keyframes heart-pop {
+  0% { transform: translate(-50%, -50%) scale(0) rotate(-12deg); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
 }
 
-@media (max-width: 768px) {
-    .message {
-        font-size: 16px;
-    }
-    
-    .action-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
+@keyframes heart-float {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -58%) scale(1.06); }
+}
+
+@keyframes heart-out {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to { transform: translate(-50%, -80%) scale(0.6); opacity: 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Menos movimiento si el sistema lo pide */
+@media (prefers-reduced-motion: reduce) {
+  .hint,
+  .btn.bounce,
+  .big-heart.show {
+    animation-duration: 0.01s;
+    animation-iteration-count: 1;
+  }
 }
