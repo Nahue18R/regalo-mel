@@ -21,9 +21,9 @@ donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una 
 
 También funciona con teclado (Enter / Espacio) y hay un botón 🔊 para silenciar.
 
-### 🎵 Nuestra canción
+### 🎵 Música
 
-Arriba a la izquierda está el botón **▶ Nuestra canción**: abre un reproductor chiquito de YouTube
+Arriba a la izquierda está el botón **▶**: abre un reproductor chiquito de YouTube
 (`mlrozstOdSI`) que arranca solo, y mientras suena los efectos del juego bajan de volumen. Si el navegador
 no lo reproduce solo, se toca play en el reproductor; y si el video no se puede ver incrustado, está el link
 *"Abrir en YouTube"*. El video se carga recién al tocar el botón. Funciona desde la web publicada

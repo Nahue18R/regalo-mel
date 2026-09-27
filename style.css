@@ -216,12 +216,12 @@ body {
   position: absolute;
   top: calc(14 * var(--u));
   left: calc(14 * var(--u));
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: max(36px, calc(44 * var(--u)));
-  padding: 0 max(12px, calc(16 * var(--u))) 0 6px;
-  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  width: max(36px, calc(48 * var(--u)));
+  height: max(36px, calc(48 * var(--u)));
+  padding: 0;
+  border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.7);
   background: var(--grad-primary);
   color: #fff;
@@ -369,14 +369,11 @@ body {
     min-height: 30px;
     padding: 5px 12px;
   }
-  .music-label {
-    display: none;
-  }
   .music-btn {
     top: 6px;
     left: 6px;
-    min-height: 30px;
-    padding: 0 3px;
+    width: 30px;
+    height: 30px;
   }
   .icon-btn {
     width: 30px;

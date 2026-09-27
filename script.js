@@ -2495,7 +2495,7 @@
     });
   }
 
-  /* ---------- Música: "nuestra canción" desde YouTube ----------
+  /* ---------- Música desde YouTube (botón ▶) ----------
    * El reproductor se crea recién al tocar ▶ (así no carga nada de YouTube
    * antes). Mientras suena, los efectos del juego bajan de volumen.        */
   const SONG_ID = 'mlrozstOdSI';
@@ -2504,7 +2504,7 @@
     if (!ui.musicFrame.firstChild) {
       const f = document.createElement('iframe');
       f.src = `https://www.youtube-nocookie.com/embed/${SONG_ID}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
-      f.title = 'Nuestra canción';
+      f.title = 'Música';
       f.allow = 'autoplay; encrypted-media; picture-in-picture';
       f.referrerPolicy = 'strict-origin-when-cross-origin';
       ui.musicFrame.appendChild(f);
