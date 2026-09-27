@@ -4,7 +4,7 @@
  * Todo se dibuja por código (sin imágenes externas):
  *   - El "mundo" se pinta en un canvas de baja resolución (512x288) y se
  *     escala x2 sin suavizado → pixel art nítido.
- *   - Los sprites complejos (Snoopy, ramo, motos, graffiti...) se generan
+ *   - Los sprites complejos (ramo, motos, graffiti, mural...) se generan
  *     una sola vez con un mini rasterizador (clase Grid) y quedan cacheados.
  *   - La carta, el confeti y el título final se dibujan en alta resolución
  *     sobre el canvas principal para que el texto se lea perfecto.
@@ -315,6 +315,16 @@
     '6': ['.###.', '#....', '#....', '####.', '#...#', '#...#', '.###.'],
     '.': ['.....', '.....', '.....', '.....', '.....', '.....', '..#..'],
     '♥': ['.....', '.#.#.', '#####', '#####', '.###.', '..#..', '.....'],
+    // minúsculas (cartel de la droguería y la firma)
+    a: ['.....', '.....', '.###.', '....#', '.####', '#...#', '.####'],
+    d: ['....#', '....#', '.####', '#...#', '#...#', '#...#', '.####'],
+    e: ['.....', '.....', '.###.', '#...#', '#####', '#....', '.###.'],
+    g: ['.....', '.####', '#...#', '#...#', '.####', '....#', '.###.'],
+    í: ['...#.', '..#..', '.##..', '..#..', '..#..', '..#..', '.###.'],
+    l: ['.##..', '..#..', '..#..', '..#..', '..#..', '..#..', '.###.'],
+    o: ['.....', '.....', '.###.', '#...#', '#...#', '#...#', '.###.'],
+    r: ['.....', '.....', '#.##.', '##..#', '#....', '#....', '#....'],
+    u: ['.....', '.....', '#...#', '#...#', '#...#', '#..##', '.##.#'],
     ' ': ['.....', '.....', '.....', '.....', '.....', '.....', '.....'],
   };
 
@@ -329,6 +339,30 @@
     return cx - spacing;
   }
 
+  // Fuente mini 3x5 (texto del mural)
+  const TINY = {
+    A: ['.#.', '#.#', '###', '#.#', '#.#'], B: ['##.', '#.#', '##.', '#.#', '##.'],
+    C: ['.##', '#..', '#..', '#..', '.##'], E: ['###', '#..', '##.', '#..', '###'],
+    H: ['#.#', '#.#', '###', '#.#', '#.#'], I: ['###', '.#.', '.#.', '.#.', '###'],
+    J: ['..#', '..#', '..#', '#.#', '.#.'], L: ['#..', '#..', '#..', '#..', '###'],
+    N: ['##.', '#.#', '#.#', '#.#', '#.#'], O: ['.#.', '#.#', '#.#', '#.#', '.#.'],
+    P: ['##.', '#.#', '##.', '#..', '#..'], Q: ['.#.', '#.#', '#.#', '##.', '.##'],
+    R: ['##.', '#.#', '##.', '#.#', '#.#'], S: ['.##', '#..', '.#.', '..#', '##.'],
+    T: ['###', '.#.', '.#.', '.#.', '.#.'], U: ['#.#', '#.#', '#.#', '#.#', '###'],
+    V: ['#.#', '#.#', '#.#', '#.#', '.#.'], '.': ['...', '...', '...', '...', '.#.'],
+    ' ': ['...', '...', '...', '...', '...'],
+  };
+
+  function tinyText(g, text, x, y, color) {
+    g.fillStyle = color;
+    let cx = x;
+    for (const ch of text) {
+      const gl = TINY[ch] || TINY[' '];
+      for (let r = 0; r < 5; r++) for (let k = 0; k < 3; k++) if (gl[r][k] === '#') g.fillRect(cx + k, y + r, 1, 1);
+      cx += 4;
+    }
+  }
+
   function pixelText(g, text, x, y, color, size = 1) {
     g.fillStyle = color;
     eachGlyphPixel(text, (px, py) => g.fillRect(x + px * size, y + py * size, size, size));
@@ -337,66 +371,6 @@
   /* =======================================================================
    * 3. SPRITES CACHEADOS
    * ===================================================================== */
-
-  /* ---------- Snoopy con flor (referencia: el dibujo de Nahu) ---------- */
-  function buildSnoopy() {
-    const G = new Grid(58, 52);
-    const K = '#141414', Wt = '#ffffff', Sh = '#e4e4ec';
-
-    // cola y brazo de atrás
-    G.paint(G.capsule(9, 37, 5, 31, 1.6), Wt, K);
-    G.paint(G.capsule(15, 30, 12, 38, 2.4), Wt, K);
-    // cuerpo sentado (regordete)
-    const body = G.union(G.ellipse(20, 34, 9.5, 10), G.ellipse(19.5, 40, 11.5, 7));
-    G.paint(body, Wt, K);
-    G.paint(G.filter(body, (x, y) => y > 41 && x < 17), Sh);
-    // patitas (4, con contorno negro)
-    G.paint(G.ellipse(12.5, 46, 4.5, 2.6), Wt, K);
-    G.paint(G.ellipse(26.5, 46, 5.5, 2.6), Wt, K);
-    G.dots([[11, 45], [13, 45], [25, 45], [27, 45]], K);
-    // cabeza: domo + hocico alargado
-    const head = G.union(G.ellipse(19.5, 15, 10, 10), G.ellipse(30, 17, 10.5, 6.5));
-    G.paint(head, Wt, K);
-    G.paint(G.filter(head, (x, y) => y > 21 && x < 26), Sh);
-    // nariz
-    G.paint(G.ellipse(40.2, 14.6, 2.6, 2.1), K);
-    G.dot(39, 13, '#6a6a6a');
-    // collar rojo
-    G.paint(G.poly([[11, 23], [27, 24], [27, 27], [11, 26.5]]), '#d7263d', K);
-    G.dot(19, 27, PAL.yellow);
-    // oreja caída
-    G.paint(G.poly([[11, 8], [18, 6.5], [20, 11], [18.5, 20], [16, 27], [11.5, 28], [9, 23], [9.5, 14]]), K);
-    G.dots([[13, 10], [12, 12]], '#3a3a3a');
-    // ojo cerrado (feliz ^)
-    G.dots([[24, 13], [25, 12], [26, 12], [27, 13]], K);
-    // cachete
-    G.dots([[25, 17], [26, 17]], '#ffb3c6');
-    // sonrisa
-    G.dots([[28, 20], [29, 21], [30, 21], [31, 21], [32, 21], [33, 21], [34, 20], [35, 19]], K);
-    // brazo delantero sosteniendo la flor
-    G.paint(G.capsule(24, 30, 36, 33, 2.3), Wt, K);
-    G.paint(G.ellipse(38, 32.5, 2.8, 2.5), Wt, K);
-    // tallo + hoja
-    G.line(39, 31, 45, 26, PAL.stem);
-    G.line(40, 31, 46, 26, '#1c6e1c');
-    G.paint(G.ellipse(44.5, 27.5, 1.8, 1), '#3fae3f', '#1c6e1c');
-    // flor sonriente: pétalos rojos, centro amarillo
-    const fx = 48.5, fy = 21.5;
-    const petals = [];
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * Math.PI * 2 - Math.PI / 2;
-      petals.push(G.circle(fx + Math.cos(a) * 5.2, fy + Math.sin(a) * 5.2, 3.3));
-    }
-    G.paint(G.union(...petals), '#e8283f', '#8e0f22');
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * Math.PI * 2 - Math.PI / 2;
-      G.dot(Math.round(fx + Math.cos(a) * 6) - 1, Math.round(fy + Math.sin(a) * 6) - 1, '#ff6b7f');
-    }
-    G.paint(G.circle(fx, fy, 3.9), '#ffd21f', '#c98a00');
-    G.dots([[47, 20], [50, 20]], '#3b2300');
-    G.dots([[47, 23], [48, 24], [49, 24], [50, 23]], '#3b2300');
-    return G.toCanvas();
-  }
 
   /* ---------- Corazones pixel ---------- */
   function buildHeart(size, fill, outline, shine) {
@@ -689,6 +663,100 @@
     return c;
   }
 
+  // Tanque cilíndrico blanco con techo en cúpula
+  function drawTank(g, tx, tw, tTop, rng, band) {
+    const { wallTop } = LAYOUT;
+    const ramp = ['#f4f6f7', '#e8ebed', '#d9dde0', '#c7cdd1', '#b3bac0', '#a0a8ae'];
+    for (let x = 0; x < tw; x++) {
+      const k = Math.min(ramp.length - 1, Math.floor(Math.abs(x / tw - 0.3) * 1.7 * ramp.length));
+      rect(g, tx + x, tTop, 1, wallTop - tTop, ramp[k]);
+    }
+    for (let y = 0; y < 8; y++) {
+      const half = Math.round((tw / 2) * Math.sqrt(1 - Math.pow((8 - y) / 8.5, 2)));
+      rect(g, tx + tw / 2 - half, tTop - 8 + y, half * 2, 1, y < 3 ? '#e4e7e9' : '#d3d8db');
+    }
+    rect(g, tx, tTop - 1, tw, 1, '#a9b0b6');
+    if (band) rect(g, tx, tTop + 40, tw, 2, '#8e969c');
+    for (let i = 0; i < 5; i++) {
+      const x = tx + 5 + Math.floor(rng() * (tw - 10)), y = tTop + 4 + Math.floor(rng() * 40);
+      rect(g, x, y, 1, 3 + Math.floor(rng() * 8), '#c2b8a8');
+    }
+  }
+
+  // Escalera con jaula de seguridad
+  function drawCageLadder(g, x, top, bottom) {
+    const c = '#f2f4f5', d = '#9aa2a8';
+    rect(g, x, top, 1, bottom - top, c);
+    rect(g, x + 7, top, 1, bottom - top, c);
+    rect(g, x + 1, top, 1, bottom - top, d);
+    for (let y = top + 2; y < bottom; y += 5) rect(g, x, y, 8, 1, y % 2 ? c : '#dfe3e6');
+    for (let y = top + 4; y < bottom; y += 4) rect(g, x + 3, y, 2, 1, d);
+  }
+
+  // Logo de Del Sud: cubos hexagonales blancos
+  function buildDelSudLogo() {
+    const G = new Grid(20, 20);
+    const hex = (cx, cy, r) => {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 6 + (i * Math.PI) / 3;
+        pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+      }
+      return pts;
+    };
+    const cube = (cx, cy, r) => {
+      G.paint(G.poly(hex(cx, cy, r)), '#ffffff', '#1b4596');
+      // aristas internas del cubo
+      G.line(Math.round(cx), Math.round(cy), Math.round(cx), Math.round(cy + r), '#9fb4dc');
+      G.line(Math.round(cx), Math.round(cy), Math.round(cx - r * 0.86), Math.round(cy - r / 2), '#9fb4dc');
+      G.line(Math.round(cx), Math.round(cy), Math.round(cx + r * 0.86), Math.round(cy - r / 2), '#9fb4dc');
+    };
+    cube(10, 5, 4.6);
+    cube(5.2, 10, 4.6);
+    cube(14.8, 10, 4.6);
+    cube(10, 14.6, 4.6);
+    return G.toCanvas();
+  }
+
+  // Mural: corazón gigante con estrellas y Nahu colgado, con la frase
+  function buildMural() {
+    const [c, g] = makeCanvas(104, 88);
+    const rng = makeRng(314);
+    rect(g, 0, 0, 104, 88, '#1c1528');
+    rect(g, 0, 0, 104, 1, '#0e0a16');
+    rect(g, 0, 87, 104, 1, '#0e0a16');
+    // estrellas doradas
+    const star = (x, y, big) => {
+      rect(g, x, y, 1, 1, '#ffe38a');
+      rect(g, x - 1, y, 3, 1, '#f4c542');
+      rect(g, x, y - 1, 1, 3, '#f4c542');
+      if (big) {
+        rect(g, x - 2, y, 5, 1, '#f4c542');
+        rect(g, x, y - 2, 1, 5, '#f4c542');
+        rect(g, x, y, 1, 1, '#fff6cc');
+      }
+    };
+    [[6, 6, 1], [30, 12, 0], [96, 8, 1], [98, 40, 0], [88, 66, 1], [60, 78, 0], [40, 30, 0], [22, 22, 1], [100, 80, 0], [8, 36, 0]]
+      .forEach(([x, y, b]) => star(x, y, b));
+    for (let i = 0; i < 14; i++) rect(g, Math.floor(rng() * 104), Math.floor(rng() * 88), 1, 1, '#6c5a8a');
+    // corazón con degradé
+    const Hg = new Grid(48, 44);
+    const m = Hg.union(Hg.circle(12.5, 13, 11.5), Hg.circle(35.5, 13, 11.5), Hg.poly([[1.6, 16], [46.4, 16], [24, 42.5]]));
+    Hg.paint(m, '#ff8fa3', '#7d1233');
+    const ramp = ['#ffb0be', '#ff97aa', '#fb7d95', '#f2627f', '#e4486a', '#cf3358'];
+    Hg.paint(Hg.filter(m, (x, y) => y > 4), ramp[1]);
+    for (let k = 2; k < ramp.length; k++) Hg.paint(Hg.filter(m, (x, y) => y > 4 + k * 6 + ((x + y) % 2)), ramp[k]);
+    Hg.paint(Hg.filter(m, (x, y) => y > 5 && y < 11 && x > 6 && x < 11), '#ffd6de');
+    g.drawImage(Hg.toCanvas(), 52, 4);
+    // Nahu colgado de la punta del corazón
+    drawNahu(g, 71, 86, { hang: true, look: 1, smile: 1, walk: 1 });
+    // la frase
+    ['CUALQUIERA', 'EN SU SANO', 'JUICIO SE', 'HABRIA', 'VUELTO LOCO', 'POR TI.'].forEach((ln, i) => {
+      tinyText(g, ln, 5, 50 + i * 6, '#ffffff');
+    });
+    return c;
+  }
+
   function buildBackground() {
     const [c, g] = makeCanvas(W, H);
     const rng = makeRng(2026);
@@ -716,34 +784,24 @@
       if (x < 358) g.fillStyle = '#4e5a66', g.fillRect(x, Math.min(y1, 80), 1, 1);
     }
 
-    /* --- tanque de agua (detrás de la pared) --- */
-    const tx = 150, tw = 86, tTop = 34;
-    const tankRamp = ['#f3f5f6', '#e6eaec', '#d6dbdf', '#c3c9ce', '#aeb5bb', '#9aa2a9'];
-    for (let x = 0; x < tw; x++) {
-      const t = x / tw;
-      const k = Math.min(tankRamp.length - 1, Math.floor(Math.abs(t - 0.28) * 1.6 * tankRamp.length));
-      rect(g, tx + x, tTop, 1, wallTop - tTop, tankRamp[k]);
-    }
-    // techo en cúpula
-    for (let y = 0; y < 9; y++) {
-      const half = Math.round((tw / 2) * Math.sqrt(1 - Math.pow((9 - y) / 9.5, 2)));
-      rect(g, tx + tw / 2 - half, tTop - 9 + y, half * 2, 1, y < 3 ? '#dfe3e6' : '#cfd5d9');
-    }
-    rect(g, tx, tTop - 1, tw, 2, '#8f979e');
-    rect(g, tx + tw / 2 - 3, tTop - 12, 6, 3, '#9aa2a9');
-    // anillos, óxido
-    for (let y = tTop + 14; y < wallTop; y += 16) rect(g, tx, y, tw, 1, '#a9b0b6');
-    for (let i = 0; i < 7; i++) {
-      const x = tx + 6 + Math.floor(rng() * (tw - 12)), y = tTop + 4 + Math.floor(rng() * 50);
-      rect(g, x, y, 1, 4 + Math.floor(rng() * 10), '#b9a894');
-    }
-    // escalera
-    rect(g, tx + tw - 12, tTop, 1, wallTop - tTop, '#6c7379');
-    rect(g, tx + tw - 7, tTop, 1, wallTop - tTop, '#6c7379');
-    for (let y = tTop + 2; y < wallTop; y += 4) rect(g, tx + tw - 12, y, 6, 1, '#80878d');
-    // baranda arriba
-    rect(g, tx + 8, tTop - 14, tw - 16, 1, '#6c7379');
-    for (let x = tx + 8; x < tx + tw - 8; x += 10) rect(g, x, tTop - 14, 1, 6, '#6c7379');
+    /* --- nave blanca larga detrás (izquierda) --- */
+    rect(g, 0, 86, 146, wallTop - 86, '#e2e5e7');
+    rect(g, 0, 86, 146, 2, '#c9cdd0');
+    rect(g, 0, 88, 146, 1, '#f4f6f7');
+
+    /* --- dos tanques de agua (detrás de la pared) --- */
+    drawTank(g, 146, 78, 38, rng);
+    drawTank(g, 246, 68, 50, rng, true);
+    // escaleras con jaula
+    drawCageLadder(g, 216, 22, wallTop);
+    drawCageLadder(g, 236, 30, wallTop);
+    // caño rojizo y postes verdes
+    rect(g, 224, 30, 1, wallTop - 30, '#9a4a3a');
+    rect(g, 212, 30, 13, 1, '#9a4a3a');
+    rect(g, 244, 36, 1, wallTop - 36, '#3f7a4a');
+    rect(g, 244, 36, 6, 1, '#3f7a4a');
+    rect(g, 292, 52, 1, wallTop - 52, '#3f7a4a');
+    rect(g, 291, 51, 3, 2, '#2f5e38');
 
     /* --- alambrado sobre la pared --- */
     const WALL_END = 372;
@@ -751,8 +809,17 @@
       rect(g, x, 94, 2, wallTop - 94, PAL.fence);
       rect(g, x, 94, 1, wallTop - 94, '#6e6e6e');
       line(g, x + 1, 94, x + 5, 89, PAL.fence);
+      line(g, x, 94, x - 4, 89, PAL.fence);
     }
-    for (const wy of [97, 102, 107, 112]) {
+    // alambre de concertina (espirales)
+    g.fillStyle = '#7d7f82';
+    for (let x = 0; x < WALL_END; x += 5) {
+      for (let a = 0; a < 12; a++) {
+        const ang = (a / 12) * Math.PI * 2;
+        g.fillRect(Math.round(x + Math.cos(ang) * 3.5), Math.round(101 + Math.sin(ang) * 3.5), 1, 1);
+      }
+    }
+    for (const wy of [107, 112]) {
       for (let x = 0; x < WALL_END; x++) {
         const sag = Math.round(Math.sin(((x - 6) % 44) / 44 * Math.PI) * 1.5);
         g.fillStyle = '#5c5c5c';
@@ -794,10 +861,8 @@
 
     /* --- graffiti personalizado (reemplaza "ALVINAS FERRAN") --- */
     g.drawImage(SPR.graffiti, 118, 152);
-    // firma chiquita del autor
-    pixelText(g, 'NAHU ♥ PO', 262, 142, '#2b2b33');
-    // un tag viejo de fondo, como en la foto
-    pixelText(g, 'WASHINGTON', 120, 142, '#5d6a7c');
+    // firma chiquita
+    pixelText(g, 'Po♥', 300, 141, '#2b2b33');
 
     /* --- reja metálica (tercio izquierdo) --- */
     const rejaX = 0, rejaW = 112, rejaTop = 128;
@@ -817,45 +882,26 @@
       rect(g, rejaX, ry, rejaW, 1, '#6e6e6e');
     }
 
-    /* --- Droguería "Doc Sur" --- */
-    const dx = WALL_END, dTop = 54;
-    rect(g, dx, dTop, W - dx, wallBottom - dTop + 2, '#e7e0d0');
-    for (let y = dTop + 10; y < wallBottom; y += 6) rect(g, dx, y, W - dx, 1, '#ddd5c2');
-    rect(g, dx, dTop, W - dx, 6, '#cfc5ae');
-    rect(g, dx, dTop + 6, W - dx, 1, '#b3a88f');
-    rect(g, dx, dTop, 2, wallBottom - dTop, '#c9bfa8');
-    // cartel
-    rect(g, dx + 4, 66, 100, 32, '#134a30');
-    rect(g, dx + 6, 68, 96, 28, '#1d6b45');
-    rect(g, dx + 6, 68, 96, 1, '#2f8a5c');
-    // cruz farmacéutica
-    rect(g, dx + 12, 75, 4, 10, '#ffffff');
-    rect(g, dx + 9, 78, 10, 4, '#ffffff');
-    rect(g, dx + 13, 76, 2, 8, '#7fe0a8');
-    rect(g, dx + 10, 79, 8, 2, '#7fe0a8');
-    pixelText(g, 'DOC SUR', dx + 22, 76, '#0e3a24', 2);
-    pixelText(g, 'DOC SUR', dx + 21, 75, '#ffffff', 2);
-    // leyenda
-    pixelText(g, 'DROGUERIA', dx + 28, 104, '#6b5a44');
-    // entrada oscura con persiana a medio subir
-    const ex = dx + 12;
-    rect(g, ex, 120, 56, wallBottom - 120 + 2, '#8c846f');
-    rect(g, ex + 3, 123, 50, wallBottom - 123 + 2, '#121212');
-    for (let y = 123; y < 139; y += 2) {
-      rect(g, ex + 3, y, 50, 1, '#a3a39e');
-      rect(g, ex + 3, y + 1, 50, 1, '#83837e');
-    }
-    rect(g, ex + 3, 139, 50, 1, '#55554f');
-    for (let i = 0; i < 5; i++) rect(g, ex + 8 + i * 9, 170 + (i % 2) * 6, 7, wallBottom - 170 - (i % 2) * 6, '#1d1d1d');
-    rect(g, ex + 3, 140, 50, 3, '#1c1c1c');
-    // número de la calle
-    rect(g, dx + 72, 114, 27, 11, '#1b1b1b');
-    pixelText(g, '3546', dx + 74, 116, '#ffffff');
-    // ventana con reja
-    rect(g, dx + 76, 132, 30, 28, '#6d8aa0');
-    rect(g, dx + 76, 132, 30, 2, '#9fb8c9');
-    for (let x = dx + 78; x < dx + 106; x += 5) rect(g, x, 132, 1, 28, '#3a3a3a');
-    rect(g, dx + 74, 160, 34, 2, '#b9ae95');
+    /* --- Droguería "Del Sud" (fachada azul, como en la foto) --- */
+    const dx = WALL_END, dTop = 50;
+    rect(g, dx, dTop, W - dx, wallBottom - dTop + 2, '#2355b0');
+    for (let y = dTop + 22; y < wallBottom; y += 5) rect(g, dx, y, W - dx, 1, '#2150a6');
+    rect(g, dx, dTop + 22, 2, wallBottom - dTop - 22, '#1a438c');
+    // alero oscuro acanalado
+    rect(g, dx - 2, dTop, W - dx + 2, 16, '#23262c');
+    for (let x = dx - 2; x < W; x += 3) rect(g, x, dTop, 1, 16, '#31353d');
+    rect(g, dx - 2, dTop + 16, W - dx + 2, 2, '#15171b');
+    rect(g, dx - 2, dTop - 3, W - dx + 2, 3, '#2d5fc0');
+    // logo: cubos hexagonales blancos + "Droguería Del Sud"
+    g.drawImage(SPR.delSudLogo, dx + 5, 73);
+    pixelText(g, 'Droguería', dx + 27, 72, '#ffffff');
+    pixelText(g, 'Del Sud', dx + 26, 82, '#ffffff', 2);
+    pixelText(g, 'Del Sud', dx + 27, 82, '#ffffff', 2);
+    // franja blanca
+    rect(g, dx, 104, W - dx, 3, '#eef1f5');
+    rect(g, dx, 107, W - dx, 1, '#b9c3d3');
+    // mural del corazón
+    g.drawImage(SPR.mural, dx + 4, 110);
 
     /* --- vereda --- */
     rect(g, 0, wallBottom, W, sidewalkBottom - wallBottom, '#bfc1bb');
@@ -897,11 +943,12 @@
     for (let x = 251; x < 266; x += 2) rect(g, x, streetTop + 1, 1, 3, '#6f776f');
 
     /* --- cartel de calle (Carlos Gardel) --- */
-    rect(g, 350, 132, 2, 94, '#3a3a3a');
-    rect(g, 350, 132, 1, 94, '#5a5a5a');
-    rect(g, 330, 131, 44, 11, '#0f0f0f');
-    rect(g, 331, 132, 42, 9, '#1e1e1e');
-    pixelText(g, 'GARDEL', 334, 133, '#f5f5f5');
+    rect(g, 350, 126, 2, 100, '#3a3a3a');
+    rect(g, 350, 126, 1, 100, '#5a5a5a');
+    rect(g, 329, 124, 45, 20, '#0f0f0f');
+    rect(g, 330, 125, 43, 18, '#1e1e1e');
+    pixelText(g, 'GARDEL', 334, 126, '#f5f5f5');
+    pixelText(g, '3546', 340, 135, '#f5f5f5');
 
     return c;
   }
@@ -1181,7 +1228,13 @@
         R(sx + 7, 17, 2, 2, P.skin);
       }
     };
-    if (o.hug) {
+    if (o.hang) {
+      // colgado de algo con el brazo derecho estirado hacia arriba
+      arm(-1, false);
+      R(4, -2, 2, 15, P.jacket);
+      R(5, -2, 1, 15, P.stripe);
+      R(4, -4, 2, 2, P.skin);
+    } else if (o.hug) {
       arm(-1, false);
       R(4, 13, 2, 4, P.jacket);
       R(4, 17, 9, 2, P.jacket);
@@ -1291,13 +1344,25 @@
       if (!AC) return;
       this.ctx = new AC();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.6;
+      this.master.gain.value = this.level();
       this.master.connect(this.ctx.destination);
+    },
+
+    ducked: false,
+
+    level() {
+      return this.muted ? 0 : this.ducked ? 0.12 : 0.6;
     },
 
     setMuted(m) {
       this.muted = m;
-      if (this.master) this.master.gain.setTargetAtTime(m ? 0 : 0.6, this.ctx.currentTime, 0.05);
+      if (this.master) this.master.gain.setTargetAtTime(this.level(), this.ctx.currentTime, 0.05);
+    },
+
+    // baja los efectos mientras suena la canción
+    duck(on) {
+      this.ducked = on;
+      if (this.master) this.master.gain.setTargetAtTime(this.level(), this.ctx.currentTime, 0.2);
     },
 
     tone(freq, dur, { type = 'sine', vol = 0.2, delay = 0, slide = 0, attack = 0.01 } = {}) {
@@ -1425,6 +1490,10 @@
     reread: document.getElementById('rereadBtn'),
     restart: document.getElementById('restartBtn'),
     mute: document.getElementById('muteBtn'),
+    music: document.getElementById('musicBtn'),
+    musicPanel: document.getElementById('musicPanel'),
+    musicFrame: document.getElementById('musicFrame'),
+    musicClose: document.getElementById('musicClose'),
     live: document.getElementById('srLive'),
   };
 
@@ -1455,38 +1524,38 @@
   const CARD_FRONT = {
     w: 300,
     h: 380,
-    lines: [
-      'Ningún motivo especial.',
-      'Solo quería que lo supieras.',
-      '',
-      'Sos hermosa',
-      'Tenés una sonrisa que me desarma',
-      '',
-      'Tkm Mel 💛',
-    ],
-    signature: 'Nahu',
+    // dedicatoria de la tapa
+    lines: ['Para la mujer', 'más hermosa', 'de todo Villa Domínico', 'y sus alrededores'],
   };
 
   const CARD_INSIDE = {
     w: 360,
     h: 450,
     paragraphs: [
-      'po,',
+      'Mel,',
       '',
-      'No es por ninguna fecha ni por nada en especial.',
-      '',
-      'Solo quería que, cuando leas esto, te acuerdes de que sos hermosa y de que tenés una sonrisa que me desarma.',
+      'De alma bonita,',
+      'De carácter fuerte,',
+      'De mirada brillosa,',
+      'De corazón valiente,',
+      'De sonrisa inolvidable,',
       '',
       'Gracias por hacer mejor cualquier día común.',
+      'Todo lo que hago por vos lo hago con mucho amor ♥',
       '',
-      'Tkm,',
-      'Nahu 💛',
+      'Tkm',
+      'Nahu',
     ],
     lines: [],     // se calcula con wrapText al iniciar
     font: '13px Georgia, "Times New Roman", serif',
     lineH: 13 * 1.8,
-    gapH: 12,
+    gapH: 10,
+    drawingH: 136, // alto del dibujo de Snoopy
   };
+
+  // El dibujo de Snoopy hecho a mano por Nahu (lápiz escaneado, fondo transparente)
+  const drawing = new Image();
+  drawing.src = 'snoopy-nahu.png';
 
   function wrapText(g, paragraphs, maxW) {
     const out = [];
@@ -1543,50 +1612,62 @@
     g.strokeRect(-w / 2 + 9.5, -h / 2 + 9.5, w - 19, h - 19);
   }
 
-  function drawSnoopy(g, cx, top, scale, t) {
-    const bob = Math.round(Math.sin(t * 3) * 1.5) * scale;
-    const w = SPR.snoopy.width * scale, h = SPR.snoopy.height * scale;
-    g.imageSmoothingEnabled = false;
-    g.drawImage(SPR.snoopy, Math.round(cx - w / 2), Math.round(top + bob), w, h);
-    return { w, h };
+  function drawDrawing(g, cx, top, hgt, t) {
+    if (!drawing.complete || !drawing.naturalWidth) return;
+    const wd = (drawing.naturalWidth / drawing.naturalHeight) * hgt;
+    const bob = Math.sin(t * 2) * 2;
+    g.save();
+    g.imageSmoothingEnabled = true;
+    g.translate(cx, top + hgt / 2 + bob);
+    g.rotate(Math.sin(t * 1.3) * 0.02);
+    g.drawImage(drawing, -wd / 2, -hgt / 2, wd, hgt);
+    g.restore();
   }
 
   function drawCardFront(g, t) {
     const { w, h } = CARD_FRONT;
     paperRect(g, w, h);
-    drawSnoopy(g, 0, -h / 2 + 26, 2, t);
+    // sello de corazón (pixel art)
+    const hs = SPR.heartBig.width * 6;
+    const hb = Math.round(Math.sin(t * 2.4) * 3);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(SPR.heartBig, -hs / 2, -h / 2 + 40 + hb, hs, hs);
+    // dedicatoria
     g.textAlign = 'center';
     g.textBaseline = 'alphabetic';
-    g.fillStyle = '#1a1a1a';
-    g.font = '15px Georgia, "Times New Roman", serif';
-    let y = -h / 2 + 160;
-    for (const ln of CARD_FRONT.lines) {
-      if (ln) {
-        if (ln.startsWith('Tkm')) g.font = 'bold 16px Georgia, "Times New Roman", serif';
-        g.fillText(ln, 0, y);
-        y += 24;
-      } else y += 12;
-    }
+    g.fillStyle = '#2a1a22';
+    let y = -h / 2 + 150;
+    CARD_FRONT.lines.forEach((ln, i) => {
+      g.font = i === 1
+        ? 'bold italic 28px Georgia, "Times New Roman", serif'
+        : 'italic 21px Georgia, "Times New Roman", serif';
+      g.fillStyle = i === 1 ? '#b0284f' : '#2a1a22';
+      g.fillText(ln, 0, y);
+      y += i === 0 ? 36 : 32;
+    });
+    // adorno
+    g.fillStyle = 'rgba(176,40,79,0.5)';
+    g.fillRect(-40, y + 6, 80, 1);
     g.font = 'italic 13px Georgia, "Times New Roman", serif';
-    g.fillStyle = '#5a4a4a';
-    g.fillText('— ' + CARD_FRONT.signature, 0, y + 14);
+    g.fillStyle = '#6a5a5a';
+    g.fillText('de Nahu', 0, y + 32);
   }
 
   function drawCardInside(g, t, revealT) {
     const { w, h } = CARD_INSIDE;
     paperRect(g, w, h);
-    // Snoopy grande + corazón flotando
+    // el dibujo de Nahu + corazón flotando
     const top = -h / 2 + 18;
-    drawSnoopy(g, -6, top, 3, t);
+    drawDrawing(g, 0, top, CARD_INSIDE.drawingH, t);
     const hb = Math.round(Math.sin(t * 2.2) * 3);
     const hs = SPR.heartBig.width * 3;
-    g.drawImage(SPR.heartBig, Math.round(w / 2 - 70), Math.round(top + 6 + hb), hs, hs);
-    // texto línea por línea
+    g.imageSmoothingEnabled = false;
+    g.drawImage(SPR.heartBig, Math.round(w / 2 - 66), Math.round(top + 8 + hb), hs, hs);
+    // texto línea por línea (centrado, tipo poema)
     g.font = CARD_INSIDE.font;
-    g.textAlign = 'left';
+    g.textAlign = 'center';
     g.textBaseline = 'alphabetic';
-    let y = top + SPR.snoopy.height * 3 + 22;
-    const x = -w / 2 + 28;
+    let y = top + CARD_INSIDE.drawingH + 26;
     CARD_INSIDE.lines.forEach((ln, i) => {
       if (!ln) {
         y += CARD_INSIDE.gapH;
@@ -1596,10 +1677,10 @@
       const k = clamp((revealT - tl.start) / Math.max(0.3, tl.dur * 0.6), 0, 1);
       if (k > 0) {
         g.globalAlpha = k;
-        const isSign = ln.startsWith('Nahu');
-        g.font = isSign ? 'italic 15px Georgia, "Times New Roman", serif' : CARD_INSIDE.font;
-        g.fillStyle = isSign ? '#7a2f55' : '#2c2c2c';
-        g.fillText(ln, x + (1 - k) * 6, y);
+        const isName = ln === 'Mel,' || ln === 'Nahu';
+        g.font = isName ? 'bold italic 16px Georgia, "Times New Roman", serif' : CARD_INSIDE.font;
+        g.fillStyle = isName ? '#8a2550' : '#2c2c2c';
+        g.fillText(ln, 0, y + (1 - k) * 4);
         g.font = CARD_INSIDE.font;
       }
       y += CARD_INSIDE.lineH;
@@ -2004,12 +2085,15 @@
 
   /* ---------- Cámara: plano general al principio, zoom x1.5 sobre la pareja ---------- */
   const ZOOM_IN = 1.7; // de 2px a 3.4px por pixel del mundo
+  const ZOOM_FINAL = 1.38;
 
   function cameraTarget() {
     const st = game.state;
     if (st === S.WAITING || st === S.ARRIVING || (st === S.GIFT && game.t < 0.5)) {
       return { x: W / 2, y: H / 2, z: 1 };
     }
+    // final: plano más abierto para ver el graffiti y el mural del corazón
+    if (st === S.FINAL) return { x: 300, y: 180, z: ZOOM_FINAL };
     // encuadre: la pareja + el graffiti completo detrás
     const frameX = 250;
     let x = frameX;
@@ -2302,8 +2386,8 @@
       if (game.rereading) {
         const k = Ease.outBack(prog(game.rereadT, 0, 0.4));
         g.save();
-        g.translate(cx, cy + 12);
-        g.scale(0.85 + 0.15 * k, 0.85 + 0.15 * k);
+        g.translate(cx, cy - 8);
+        g.scale(0.82 + 0.1 * k, 0.82 + 0.1 * k);
         g.globalAlpha = prog(game.rereadT, 0, 0.25);
         drawCardInside(g, t, 999);
         g.restore();
@@ -2323,10 +2407,11 @@
 
   function buildAssets() {
     SPR.graffiti = buildGraffiti();
+    SPR.delSudLogo = buildDelSudLogo();
+    SPR.mural = buildMural();
     SPR.sky = buildSky(PAL.sky);
     SPR.skySunset = buildSky(PAL.skySunset);
     SPR.bg = buildBackground();
-    SPR.snoopy = buildSnoopy();
     SPR.heart = buildHeart(6, '#ff4d6d', '#8e1b3a', '#ffc2cf');
     SPR.heartBig = buildHeart(9, '#ff3b62', '#7d1233', '#ffc2cf');
     SPR.bouquet = buildBouquet();
@@ -2334,7 +2419,7 @@
     SPR.ybrParked = buildYBR(true);
     SPR.glh = buildGLH();
 
-    game.willows = [makeWillow(46, 216, 11), makeWillow(506, 216, 23, 0.6)];
+    game.willows = [makeWillow(46, 216, 11), makeWillow(512, 216, 23, 0.5)];
     game.clouds = [
       { spr: buildCloud(1), x: 20, y: 14, speed: 3 },
       { spr: buildCloud(2), x: 200, y: 36, speed: 5 },
@@ -2381,6 +2466,13 @@
       closeReread();
       restart();
     });
+    ui.music.addEventListener('click', (e) => {
+      e.stopPropagation();
+      Sound.init();
+      if (ui.musicPanel.hidden) openMusic();
+      else closeMusic();
+    });
+    ui.musicClose.addEventListener('click', closeMusic);
     ui.mute.addEventListener('click', () => {
       Sound.init();
       Sound.setMuted(!Sound.muted);
@@ -2401,6 +2493,36 @@
       if (document.hidden) Sound.ctx.suspend();
       else Sound.ctx.resume();
     });
+  }
+
+  /* ---------- Música: "nuestra canción" desde YouTube ----------
+   * El reproductor se crea recién al tocar ▶ (así no carga nada de YouTube
+   * antes). Mientras suena, los efectos del juego bajan de volumen.        */
+  const SONG_ID = 'mlrozstOdSI';
+
+  function openMusic() {
+    if (!ui.musicFrame.firstChild) {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${SONG_ID}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+      f.title = 'Nuestra canción';
+      f.allow = 'autoplay; encrypted-media; picture-in-picture';
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      ui.musicFrame.appendChild(f);
+    }
+    ui.musicPanel.hidden = false;
+    ui.music.classList.add('is-playing');
+    ui.music.setAttribute('aria-expanded', 'true');
+    ui.music.querySelector('.music-icon').textContent = '♪';
+    Sound.duck(true);
+  }
+
+  function closeMusic() {
+    ui.musicFrame.textContent = ''; // quitar el iframe detiene la canción
+    ui.musicPanel.hidden = true;
+    ui.music.classList.remove('is-playing');
+    ui.music.setAttribute('aria-expanded', 'false');
+    ui.music.querySelector('.music-icon').textContent = '▶';
+    Sound.duck(false);
   }
 
   function closeReread() {

@@ -14,9 +14,12 @@
     <!-- Escenario 16:9: el canvas dibuja todo el juego, la UI va encima en HTML -->
     <div id="stage" class="stage">
       <canvas id="game" width="1024" height="576" role="img"
-              aria-label="Escena pixel art: Mel espera frente a la droguería Doc Sur en Carlos Gardel 3546, Avellaneda."></canvas>
+              aria-label="Escena pixel art: Mel espera frente a la droguería Del Sud en Carlos Gardel 3546, Avellaneda."></canvas>
 
       <div class="ui" id="ui">
+        <button id="musicBtn" class="music-btn" type="button" aria-label="Reproducir nuestra canción" aria-expanded="false" aria-controls="musicPanel">
+          <span class="music-icon" aria-hidden="true">▶</span><span class="music-label">Nuestra canción</span>
+        </button>
         <button id="muteBtn" class="icon-btn" type="button" aria-label="Silenciar sonido" aria-pressed="false">🔊</button>
 
         <div id="bigHeart" class="big-heart" aria-hidden="true">💛</div>
@@ -31,6 +34,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Reproductor de la canción (se carga recién al tocar ▶) -->
+    <aside id="musicPanel" class="music-panel" hidden aria-label="Reproductor de música">
+      <div class="music-head">
+        <span>♪ Nuestra canción</span>
+        <button id="musicClose" class="music-close" type="button" aria-label="Cerrar y detener la música">✕</button>
+      </div>
+      <div id="musicFrame" class="music-frame"></div>
+      <a class="music-link" href="https://www.youtube.com/watch?v=mlrozstOdSI" target="_blank" rel="noopener">¿No suena? Abrir en YouTube ↗</a>
+    </aside>
 
     <p class="rotate-hint">Girá el celu 📱 para verlo en grande</p>
 

@@ -1,23 +1,33 @@
 # 💛 Para la po — regalo interactivo en pixel art
 
 Un juego 2D pixel art hecho a mano (por código) para Mel.
-Nahu llega en su **YBR 125 negra** a **Carlos Gardel 3546, Avellaneda**, frente a la droguería **Doc Sur**,
-donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una carta con Snoopy y... confeti.
+Nahu llega en su **YBR 125 negra** a **Carlos Gardel 3546, Avellaneda**, frente a la droguería **Del Sud**,
+donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una carta con el Snoopy que dibujó Nahu y... confeti.
 
-> En la pared, el graffiti de "ALVINAS FERRAN" pasa a decir **ME GUSTAS MAS QUE LEVANTARME TARDE**.
+> En la pared, el graffiti de "ALVINAS FERRAN" pasa a decir **ME GUSTAS MAS QUE LEVANTARME TARDE**,
+> y en la fachada de Del Sud hay un mural: un corazón gigante con Nahu colgado y la frase
+> *"Cualquiera en su sano juicio se habría vuelto loco por ti."*
 
 ## 🎬 Cómo se juega
 
 | # | Estado | Qué pasa | Cómo avanza |
 |---|--------|----------|-------------|
-| 1 | `WAITING` | Mel espera frente a Doc Sur (sauces, reja, tanque, graffiti) | Botón **Comenzar** o tocar la pantalla |
+| 1 | `WAITING` | Mel espera frente a Del Sud (sauces, reja, tanques, graffiti, mural) | Botón **Comenzar** o tocar la pantalla |
 | 2 | `ARRIVING` | Nahu llega en la YBR (ruedas girando, humo, líneas de velocidad, sonido de motor, temblor al frenar) | Automático (~4 s) |
 | 3 | `GIFT` | Baja de la moto, camina hacia Mel y le da el ramo. Zoom de cámara, 💛, corazones y pétalos | Botón **Ver la carta** (aparece 1 s después) |
-| 4 | `CARD_SHOWN` | Aparece la carta con Snoopy y la flor | Botón **Abrir carta** o tocar |
-| 5 | `CARD_OPEN` | La carta gira y se abre; el mensaje se escribe línea por línea | Automático: 2 s después de terminar |
+| 4 | `CARD_SHOWN` | Aparece la carta: *"Para la mujer más hermosa de todo Villa Domínico y sus alrededores"* | Botón **Abrir carta** o tocar |
+| 5 | `CARD_OPEN` | La carta se abre: el dibujo de Snoopy de Nahu y el mensaje, línea por línea | Automático: 2 s después de terminar |
 | 6 | `FINAL` | Atardecer, abrazo, confeti y **"Tkm, Nahu 💛"** | Botones **Leer la carta** y **Reiniciar** |
 
 También funciona con teclado (Enter / Espacio) y hay un botón 🔊 para silenciar.
+
+### 🎵 Nuestra canción
+
+Arriba a la izquierda está el botón **▶ Nuestra canción**: abre un reproductor chiquito de YouTube
+(`mlrozstOdSI`) que arranca solo, y mientras suena los efectos del juego bajan de volumen. Si el navegador
+no lo reproduce solo, se toca play en el reproductor; y si el video no se puede ver incrustado, está el link
+*"Abrir en YouTube"*. El video se carga recién al tocar el botón. Funciona desde la web publicada
+(Netlify); abriendo el archivo local, YouTube puede no reproducirlo.
 
 ## 📁 Archivos
 
@@ -25,11 +35,12 @@ También funciona con teclado (Enter / Espacio) y hay un botón 🔊 para silenc
 index.html   estructura: canvas + capa de UI (botones HTML accesibles)
 style.css    layout 16:9 responsivo, botones, animaciones (bounce, pop, blink)
 script.js    todo el juego: pixel art, animación, cámara, audio y máquina de estados
+snoopy-nahu.png  el dibujo de Snoopy hecho a mano por Nahu (solo el trazo, fondo transparente)
 README.md    este archivo
 .gitignore
 ```
 
-No hay imágenes, fuentes ni librerías externas: **~100 KB en total**.
+Sin librerías ni fuentes externas: **~150 KB en total**. La única imagen es el dibujo de Nahu; todo lo demás se genera por código.
 
 ## 🛠️ Cómo está hecho
 
@@ -37,7 +48,7 @@ No hay imágenes, fuentes ni librerías externas: **~100 KB en total**.
   **1024×576** sin suavizado. El canvas principal usa el `devicePixelRatio` para que el texto de la carta
   se vea nítido en celulares.
 - **Mini rasterizador (`Grid`).** Arma sprites con elipses, polígonos y cápsulas, y les pone contorno de 1px
-  automáticamente. Así están hechos Snoopy, el ramo, las motos, el graffiti, las nubes y los corazones;
+  automáticamente. Así están hechos el ramo, las motos, el graffiti, el mural, el logo de Del Sud y los corazones;
   se generan una sola vez y quedan en caché.
 - **Personajes por partes.** Mel (pelo largo negro, campera de cuero, cinturón con hebilla, jean) y Nahu
   (pelo despeinado, lentes con vidrio azul, barba, campera Adidas negra) se dibujan pixel por pixel, con
@@ -57,6 +68,8 @@ Todo está arriba de `script.js`:
 - `TIMING`: duración de cada parte (por ejemplo, `readHold` es la pausa antes del final y `charsPerSecond`
   la velocidad con la que se escribe la carta).
 - `CARD_FRONT` / `CARD_INSIDE`: el texto de la carta.
+- `SONG_ID`: la canción de YouTube.
+- `buildMural()`: el mural del corazón.
 - `LAYOUT`: dónde está cada cosa en la escena.
 - `buildGraffiti()`: la frase de la pared.
 
