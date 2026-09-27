@@ -6,7 +6,7 @@ donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una 
 
 > En la pared, el graffiti de "ALVINAS FERRAN" pasa a decir **ME GUSTAS MAS QUE LEVANTARME TARDE**,
 > y en la fachada de Del Sud hay un mural: un corazón gigante con Nahu colgado y la frase
-> *"Cualquiera en su sano juicio se habría vuelto loco por ti."*
+> *"Cualquiera en su sano juicio se habría vuelto loco por vos."*
 
 ## 🎬 Cómo se juega
 

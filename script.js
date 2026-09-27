@@ -751,7 +751,7 @@
     // Nahu colgado de la punta del corazón
     drawNahu(g, 71, 86, { hang: true, look: 1, smile: 1, walk: 1 });
     // la frase
-    ['CUALQUIERA', 'EN SU SANO', 'JUICIO SE', 'HABRIA', 'VUELTO LOCO', 'POR TI.'].forEach((ln, i) => {
+    ['CUALQUIERA', 'EN SU SANO', 'JUICIO SE', 'HABRIA', 'VUELTO LOCO', 'POR VOS.'].forEach((ln, i) => {
       tinyText(g, ln, 5, 50 + i * 6, '#ffffff');
     });
     return c;
