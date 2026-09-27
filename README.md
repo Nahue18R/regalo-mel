@@ -1,4 +1,4 @@
-# 💛 Para la po — regalo interactivo en pixel art
+# 💙 Para la po — regalo interactivo en pixel art
 
 Un juego 2D pixel art hecho a mano (por código) para Mel.
 Nahu llega en su **YBR 125 negra** a **Carlos Gardel 3546, Avellaneda**, frente a la droguería **Del Sud**,
@@ -14,10 +14,10 @@ donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una 
 |---|--------|----------|-------------|
 | 1 | `WAITING` | Mel espera frente a Del Sud (sauces, reja, tanques, graffiti, mural) | Botón **Comenzar** o tocar la pantalla |
 | 2 | `ARRIVING` | Nahu llega en la YBR (ruedas girando, humo, líneas de velocidad, sonido de motor, temblor al frenar) | Automático (~4 s) |
-| 3 | `GIFT` | Baja de la moto, camina hacia Mel y le da el ramo. Zoom de cámara, 💛, corazones y pétalos | Botón **Ver la carta** (aparece 1 s después) |
+| 3 | `GIFT` | Baja de la moto, camina hacia Mel y le da el ramo. Zoom de cámara, 💙, corazones y pétalos | Botón **Ver la carta** (aparece 1 s después) |
 | 4 | `CARD_SHOWN` | Aparece la carta: *"Para la mujer más hermosa de todo Villa Domínico y sus alrededores"* | Botón **Abrir carta** o tocar |
 | 5 | `CARD_OPEN` | La carta se abre: el dibujo de Snoopy de Nahu y el mensaje, línea por línea | Automático: 2 s después de terminar |
-| 6 | `FINAL` | Atardecer, abrazo, confeti y **"Tkm, Nahu 💛"** | Botones **Leer la carta** y **Reiniciar** |
+| 6 | `FINAL` | Atardecer, abrazo, confeti y **"Tkm, Nahu 💙"** | Botones **Leer la carta** y **Reiniciar** |
 
 También funciona con teclado (Enter / Espacio) y hay un botón 🔊 para silenciar.
 
@@ -108,4 +108,4 @@ estático está pre-renderizado y en cada frame solo se redibujan las partes que
 
 ---
 
-Hecho con 💛 por Nahu para la po.
+Hecho con 💙 por Nahu para la po.

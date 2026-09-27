@@ -1823,7 +1823,7 @@
 
   function drawFinalTitle(g, t, alpha) {
     if (alpha <= 0) return;
-    const text = 'Tkm, Nahu 💛';
+    const text = 'Tkm, Nahu 💙';
     const pulse = 1 + Math.sin(t * 3) * 0.04;
     g.save();
     g.globalAlpha = alpha;

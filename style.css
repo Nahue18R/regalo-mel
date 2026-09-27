@@ -328,7 +328,7 @@ body {
   line-height: 1;
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
-  filter: drop-shadow(0 0 calc(18 * var(--u)) rgba(255, 215, 0, 0.75));
+  filter: drop-shadow(0 0 calc(18 * var(--u)) rgba(80, 160, 255, 0.8));
 }
 
 .big-heart.show {
