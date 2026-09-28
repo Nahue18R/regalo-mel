@@ -5,8 +5,7 @@ Nahu llega en su **YBR 125 negra** a **Carlos Gardel 3546, Avellaneda**, frente 
 donde Mel lo espera con su **Honda GLH 150 gris**. Le da un ramo, ella abre una carta con el Snoopy que dibujó Nahu y... confeti.
 
 > En la pared, el graffiti de "ALVINAS FERRAN" pasa a decir **ME GUSTAS MAS QUE LEVANTARME TARDE**,
-> y en la fachada de Del Sud hay un mural: un corazón gigante con Nahu colgado y la frase
-> *"Cualquiera en su sano juicio se habría vuelto loco por vos."*
+> y en la fachada de Del Sud hay la carita con el corazón que está pintada de verdad en esa pared.
 
 ## 🎬 Cómo se juega
 

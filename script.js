@@ -718,43 +718,39 @@
     return G.toCanvas();
   }
 
-  // Mural: corazón gigante con estrellas y Nahu colgado, con la frase
+  // Mural: la carita y el corazón que están pintados de verdad en la pared (fondo turquesa)
   function buildMural() {
-    const [c, g] = makeCanvas(104, 88);
+    const G = new Grid(104, 88);
     const rng = makeRng(314);
-    rect(g, 0, 0, 104, 88, '#1c1528');
-    rect(g, 0, 0, 104, 1, '#0e0a16');
-    rect(g, 0, 87, 104, 1, '#0e0a16');
-    // estrellas doradas
-    const star = (x, y, big) => {
-      rect(g, x, y, 1, 1, '#ffe38a');
-      rect(g, x - 1, y, 3, 1, '#f4c542');
-      rect(g, x, y - 1, 1, 3, '#f4c542');
-      if (big) {
-        rect(g, x - 2, y, 5, 1, '#f4c542');
-        rect(g, x, y - 2, 1, 5, '#f4c542');
-        rect(g, x, y, 1, 1, '#fff6cc');
-      }
-    };
-    [[6, 6, 1], [30, 12, 0], [96, 8, 1], [98, 40, 0], [88, 66, 1], [60, 78, 0], [40, 30, 0], [22, 22, 1], [100, 80, 0], [8, 36, 0]]
-      .forEach(([x, y, b]) => star(x, y, b));
-    for (let i = 0; i < 14; i++) rect(g, Math.floor(rng() * 104), Math.floor(rng() * 88), 1, 1, '#6c5a8a');
-    // corazón con degradé
-    const Hg = new Grid(48, 44);
-    const m = Hg.union(Hg.circle(12.5, 13, 11.5), Hg.circle(35.5, 13, 11.5), Hg.poly([[1.6, 16], [46.4, 16], [24, 42.5]]));
-    Hg.paint(m, '#ff8fa3', '#7d1233');
-    const ramp = ['#ffb0be', '#ff97aa', '#fb7d95', '#f2627f', '#e4486a', '#cf3358'];
-    Hg.paint(Hg.filter(m, (x, y) => y > 4), ramp[1]);
-    for (let k = 2; k < ramp.length; k++) Hg.paint(Hg.filter(m, (x, y) => y > 4 + k * 6 + ((x + y) % 2)), ramp[k]);
-    Hg.paint(Hg.filter(m, (x, y) => y > 5 && y < 11 && x > 6 && x < 11), '#ffd6de');
-    g.drawImage(Hg.toCanvas(), 52, 4);
-    // Nahu colgado de la punta del corazón
-    drawNahu(g, 71, 86, { hang: true, look: 1, smile: 1, walk: 1 });
-    // la frase
-    ['CUALQUIERA', 'EN SU SANO', 'JUICIO SE', 'HABRIA', 'VUELTO LOCO', 'POR VOS.'].forEach((ln, i) => {
-      tinyText(g, ln, 5, 50 + i * 6, '#ffffff');
-    });
-    return c;
+    // fondo turquesa con ladrillos
+    G.paint(G.rect(0, 0, 104, 88), '#7ee6d6');
+    for (let y = 0; y < 88; y += 6) {
+      G.line(0, y, 103, y, '#68d2c2');
+      for (let x = (y / 6) % 2 ? 6 : 0; x < 104; x += 12) G.line(x, y, x, y + 5, '#68d2c2');
+    }
+    for (let i = 0; i < 40; i++) G.dot(Math.floor(rng() * 104), Math.floor(rng() * 88), '#9ff0e4');
+    const INK = '#3b393f', LINE = '#3a2a9c';
+    // ojos: dos barras verticales
+    G.paint(G.capsule(28, 12, 28, 40, 4.2), INK, LINE);
+    G.paint(G.capsule(47, 17, 47, 40, 3.6), INK, LINE);
+    // sonrisa en U
+    const mouth = G.union(
+      G.capsule(11, 44, 13, 63, 3.8), G.capsule(13, 63, 20, 69, 3.8),
+      G.capsule(20, 69, 50, 67, 3.8), G.capsule(50, 67, 58, 59, 3.8), G.capsule(58, 59, 60, 45, 3.8)
+    );
+    G.paint(mouth, INK, LINE);
+    // corazón de contorno
+    const heartMask = (cx, cy, s) => G.union(
+      G.circle(cx - 7.5 * s, cy, 8.5 * s), G.circle(cx + 7.5 * s, cy, 8.5 * s),
+      G.poly([[cx - 15.6 * s, cy + 2 * s], [cx + 15.6 * s, cy + 2 * s], [cx, cy + 26 * s]])
+    );
+    const outer = heartMask(81, 34, 1.3), inner = heartMask(81, 35, 0.95);
+    G.paint(G.filter(outer, (x, y) => !inner[y * G.w + x]), INK, LINE);
+    // chorreaduras de aerosol
+    for (const [x, y, l] of [[16, 70, 5], [26, 72, 4], [40, 71, 6], [24, 43, 3], [45, 43, 4], [72, 52, 5], [79, 44, 7], [86, 60, 4], [9, 58, 4]]) {
+      G.line(x, y, x, y + l, INK);
+    }
+    return G.toCanvas();
   }
 
   function buildBackground() {
