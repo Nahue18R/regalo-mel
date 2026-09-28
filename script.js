@@ -2564,7 +2564,7 @@
   /* ---------- Música desde YouTube (botón ▶) ----------
    * El reproductor se crea recién al tocar ▶ (así no carga nada de YouTube
    * antes). Mientras suena, los efectos del juego bajan de volumen.        */
-  const SONG_ID = 'mlrozstOdSI';
+  const SONG_ID = 'cvFU75z8Tg8';
 
   function openMusic() {
     if (!ui.musicFrame.firstChild) {
